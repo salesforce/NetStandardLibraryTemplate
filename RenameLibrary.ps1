@@ -106,18 +106,16 @@ else
 Get-Childitem -File -Recurse $rootFolder | ForEach-Object {
     $file = $_.FullName;
 
-    if ($FilesToIgnore.Contains($_.Name) -or $_.FullName -eq $thisScript)
+    if (!$FilesToIgnore.Contains($_.Name) -and $_.FullName -ne $thisScript)
     {
-        continue;
-    }
-
-    $fileContent = Get-Content -Raw $file;
-    if ($fileContent.Contains($OldLibraryName) -or ($OldCompanyName -and $fileContent.Contains($OldCompanyName)))
-    {
-        $encoding = Get-FileEncoding $file;
-        $fileContent.Replace($OldLibraryName, $NewLibraryName).`
-            Replace($OldLibraryName.ToLower(), $NewLibraryName.ToLower()).`
-            Replace($OldCompanyName.ToLower(), $NewCompanyName.ToLower()) |
-            Set-Content $file -NoNewline -Encoding $encoding;
+        $fileContent = Get-Content -Raw $file;
+        if ($fileContent.Contains($OldLibraryName) -or ($OldCompanyName -and $fileContent.Contains($OldCompanyName)))
+        {
+            $encoding = Get-FileEncoding $file;
+            $fileContent.Replace($OldLibraryName, $NewLibraryName).`
+                Replace($OldLibraryName.ToLower(), $NewLibraryName.ToLower()).`
+                Replace($OldCompanyName.ToLower(), $NewCompanyName.ToLower()) |
+                Set-Content $file -NoNewline -Encoding $encoding;
+        }
     }
 }
