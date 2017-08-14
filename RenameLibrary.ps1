@@ -76,7 +76,7 @@ Write-Host "Renaming any files or folders containing the name $OldLibraryName, r
 Get-Childitem  -Recurse $rootFolder |
     Sort-Object FullName -Descending |
     Where-Object { $_.Name -match $OldLibraryName -and
-        !$FilesToIgnore.Contains($_.Name) -and
+        !($FilesToIgnore -match $_.Name) -and
         $_.FullName -ne $thisScript} |
     ForEach-Object {
         $oldName = $_.Name;
@@ -106,7 +106,7 @@ else
 Get-Childitem -File -Recurse $rootFolder | ForEach-Object {
     $file = $_.FullName;
 
-    if (!$FilesToIgnore.Contains($_.Name) -and $_.FullName -ne $thisScript)
+    if (!($FilesToIgnore -match $_.Name) -and $_.FullName -ne $thisScript)
     {
         $fileContent = Get-Content -Raw $file;
         if ($fileContent.Contains($OldLibraryName) -or ($OldCompanyName -and $fileContent.Contains($OldCompanyName)))
