@@ -41,6 +41,7 @@ Param(
 $ErrorActionPreference = "Stop"
 
 $rootFolder = Get-Item $PSScriptRoot;
+$thisScript = $MyInvocation.MyCommand.Path;
 
 # don't want to change file encodings while doing our find/replace so need this little
 # helper to find the file encodings.  Based on https://stackoverflow.com/a/9121679
@@ -74,7 +75,9 @@ if (!($OldLibraryName))
 Write-Host "Renaming any files or folders containing the name $OldLibraryName, replacing with name $NewLibraryName";
 Get-Childitem  -Recurse $rootFolder |
     Sort-Object FullName -Descending |
-    Where-Object {  $_.Name -match $OldLibraryName} |
+    Where-Object { $_.Name -match $OldLibraryName -and
+        !$FilesToIgnore.Contains($_.Name) -and
+        $_.FullName -ne $thisScript} |
     ForEach-Object {
         $oldName = $_.Name;
         $newName = $oldName.Replace($OldLibraryName, $NewLibraryName);
@@ -102,8 +105,6 @@ else
 
 Get-Childitem -File -Recurse $rootFolder | ForEach-Object {
     $file = $_.FullName;
-
-    $thisScript = $MyInvocation.MyCommand.FullName;
 
     if ($FilesToIgnore.Contains($_.Name) -or $_.FullName -eq $thisScript)
     {
