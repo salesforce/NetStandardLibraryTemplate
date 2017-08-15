@@ -4,10 +4,11 @@
 .DESCRIPTION
     Finds all files and folders containing the old library name and renames them with the new library name.
     Finds all occurences of old library name in source and project files and replaces with new library name.
-.PARAMETER OldLibraryName
-    The old library name in PascalCase (ex: "MyOldLibraryName")
 .PARAMETER NewLibraryName
     The new library name in PascalCase (ex: "MyNewLibraryName")
+.PARAMETER OldLibraryName
+    The old library name in PascalCase (ex: "MyOldLibraryName"). Defaults to "MyAwesomeLibrary" since
+    that is the library name used in this template project.
 .PARAMETER OldCompanyName
     (Optional) The old company name in PascalCase (ex: "MyOldCompanyName").
     Note that company name is just used in the sample apps.
@@ -22,19 +23,25 @@
 #>
 Param(
     [Parameter(Mandatory = $True, Position = 1)]
-    [string]$OldLibraryName,
-
-    [Parameter(Mandatory = $True, Position = 2)]
     [string]$NewLibraryName,
+
+    [Parameter(Mandatory = $False)]
+    [string]$OldLibraryName = "MyAwesomeLibrary",
 
     [Parameter(Mandatory = $False)]
     [string]$OldCompanyName,
 
     [Parameter(Mandatory = $False)]
-    [string]$NewCompanyName
+    [string]$NewCompanyName,
+
+    [Parameter(Mandatory = $False)]
+    [string[]]$FilesToIgnore = {"README.md"}
 )
 
 $ErrorActionPreference = "Stop"
+
+$rootFolder = Get-Item $PSScriptRoot;
+$thisScript = $MyInvocation.MyCommand.Path;
 
 # don't want to change file encodings while doing our find/replace so need this little
 # helper to find the file encodings.  Based on https://stackoverflow.com/a/9121679
@@ -59,11 +66,18 @@ function Get-FileEncoding
     return $encoding
 }
 
+if (!($OldLibraryName))
+{
+    throw "Must specify OldLibraryname";
+}
+
 # first replace the folder and file names
 Write-Host "Renaming any files or folders containing the name $OldLibraryName, replacing with name $NewLibraryName";
-Get-Childitem  -Recurse |
+Get-Childitem  -Recurse $rootFolder |
     Sort-Object FullName -Descending |
-    Where-Object {  $_.Name -match $OldLibraryName} |
+    Where-Object { $_.Name -match $OldLibraryName -and
+        !($FilesToIgnore -match $_.Name) -and
+        $_.FullName -ne $thisScript} |
     ForEach-Object {
         $oldName = $_.Name;
         $newName = $oldName.Replace($OldLibraryName, $NewLibraryName);
@@ -82,20 +96,26 @@ if ($NewCompanyName -and $OldCompanyName)
 else
 {
     Write-Host -ForegroundColor Yellow "'NewCompanyName' and 'OldCompanyName' not set so not replacing those"
-    $NewCompanyName = "";
-    $OldCompanyName = "";
+    # since you can't call replace with 0 length strings we just put in some random
+    # guid that is unlikely to be found (and if it is found it will replace it with the
+    # same string so no big deal)
+    $NewCompanyName = (New-Guid).ToString();
+    $OldCompanyName = $NewCompanyName;
 }
 
-Get-Childitem -File -Recurse | ForEach-Object {
+Get-Childitem -File -Recurse $rootFolder | ForEach-Object {
     $file = $_.FullName;
 
-    $fileContent = Get-Content -Raw $file;
-    if ($fileContent.Contains($OldLibraryName) -or ($OldCompanyName -and $fileContent.Contains($OldCompanyName)))
+    if (!($FilesToIgnore -match $_.Name) -and $_.FullName -ne $thisScript)
     {
-        $encoding = Get-FileEncoding $file;
-        $fileContent.Replace($OldLibraryName, $NewLibraryName).`
-            Replace($OldLibraryName.ToLower(), $NewLibraryName.ToLower()).`
-            Replace($OldCompanyName.ToLower(), $NewCompanyName.ToLower()) |
-            Set-Content $file -NoNewline -Encoding $encoding;
+        $fileContent = Get-Content -Raw $file;
+        if ($fileContent.Contains($OldLibraryName) -or ($OldCompanyName -and $fileContent.Contains($OldCompanyName)))
+        {
+            $encoding = Get-FileEncoding $file;
+            $fileContent.Replace($OldLibraryName, $NewLibraryName).`
+                Replace($OldLibraryName.ToLower(), $NewLibraryName.ToLower()).`
+                Replace($OldCompanyName.ToLower(), $NewCompanyName.ToLower()) |
+                Set-Content $file -NoNewline -Encoding $encoding;
+        }
     }
 }
