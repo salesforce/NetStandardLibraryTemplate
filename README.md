@@ -23,8 +23,8 @@ Looking to start a new repo for a cross-platform .net library?  Use this templat
     ```
 1. Commit as your initial commit
 1. Now update your library name by running the [powershell script](RenameLibrary.ps1)
-    ```
-    RenameLibrary.ps1 -OldLibraryName "MyAwesomeLibrary" -NewLibraryName "<your library name here in PascalCase>"
+    ```powershell
+    ./RenameLibrary.ps1 -NewLibraryName "<your library name here in PascalCase>"
     ```
     * If you aren't on Windows that's ok, powershell is available for [all platforms](https://github.com/PowerShell/PowerShell#get-powershell).
 1. Update the actual library and the tests and the Forms sample app UI
