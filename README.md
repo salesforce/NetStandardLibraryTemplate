@@ -16,6 +16,11 @@ Looking to start a new repo for a cross-platform .net library?  Use this templat
 
 1. Create your new repo
 1. Copy all files from this repo to your new repo (don't forget the hidden files as well, `.gitignore`, `.gitattributes`, `.vscode`)
+    * The command will probably look something like this:
+    ```bash
+    cd MyNewRepo
+    cp -r ~/Downloads/NetStandardLibraryTemplate-master/ .
+    ```
 1. Commit as your initial commit
 1. Now update your library name by running the [powershell script](RenameLibrary.ps1)
     ```
