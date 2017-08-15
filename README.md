@@ -29,6 +29,17 @@ Looking to start a new repo for a cross-platform .net library?  Use this templat
     * If you aren't on Windows that's ok, powershell is available for [all platforms](https://github.com/PowerShell/PowerShell#get-powershell).
 1. Update the actual library and the tests and the Forms sample app UI
 
+## Requirements
+
+* [Visual Studio](https://www.visualstudio.com/vs/)
+* [.Net Core SDK](https://www.microsoft.com/net/download/core) (to build from command line)
+
+## To build from command line
+```
+msbuild /t:restore
+msbuild
+```
+
 ## Future Improvements
 
 * Update template to include a platform specific implementation
