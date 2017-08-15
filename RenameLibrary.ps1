@@ -96,10 +96,10 @@ if ($NewCompanyName -and $OldCompanyName)
 else
 {
     Write-Host -ForegroundColor Yellow "'NewCompanyName' and 'OldCompanyName' not set so not replacing those"
-    # since you can't call replace with 0 length strings we just put in some string
-    # that is unlikely to be found (and if it is found it will replace it with the
+    # since you can't call replace with 0 length strings we just put in some random
+    # guid that is unlikely to be found (and if it is found it will replace it with the
     # same string so no big deal)
-    $NewCompanyName = "NEVERMIND_THEN";
+    $NewCompanyName = (New-Guid).ToString();
     $OldCompanyName = $NewCompanyName;
 }
 
