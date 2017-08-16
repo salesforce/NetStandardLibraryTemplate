@@ -31,7 +31,7 @@ Looking to start a new repo for a cross-platform .net library?  Use this templat
 
 ## Requirements
 
-* [Visual Studio](https://www.visualstudio.com/vs/)
+* [Visual Studio (2017 or VS for Mac)](https://www.visualstudio.com/vs/)
 * [.Net Core SDK](https://www.microsoft.com/net/download/core) (to build from command line)
 
 ## To build from command line
